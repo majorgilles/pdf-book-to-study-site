@@ -1,7 +1,6 @@
 # pdf-book-to-study-site
 
-An agent skill (Claude Code / any agent that reads `SKILL.md`) that turns a freely licensed PDF textbook into a public,
-verbatim study website on GitHub Pages:
+An agent skill (Claude Code / any agent that reads `SKILL.md`) that turns a PDF textbook into a verbatim study website:
 
 - text copied by script from the PDF text layer (never retyped by a model), checked word-for-word against the PDF
 - figures as exact vector crops; formulas as MathJax, each transcription checked against the PDF's characters
