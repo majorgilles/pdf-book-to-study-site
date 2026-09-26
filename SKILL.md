@@ -55,7 +55,7 @@ Python needs `pymupdf`. Screenshots/e2e need Playwright (any env that has it, e.
    - heading regexes: section `^\d+\.\d+ Title` (bold, flush left), `Exercises for (Section|Chapter)`,
      solutions `^(Sections?) N.N$|^Chapter N( Exercises)?$`, labels (`LABELS`), "Case/Step/Part N." exclusions.
    - `convert_all.sh`: slug + 0-based page ranges; optional skip range (printed TOC); `solutions` slug last.
-   - `build.py`: `BOOK` (title, also used in the grader prompt), `BOOK_ID` (short unique slug — namespaces saved
+   - `build.py`: `BOOK` (title, also used in the grader prompt), `AUTHOR` (bookshelf), `BOOK_ID` (short unique slug — namespaces saved
      progress, since every book on one `<user>.github.io` shares browser storage), `LICENSE` footer text, page `order`.
    - Coding books: `MONO` (layout.py) and `CODE_LANG` (convert.py) — see "Coding books".
 3. **One chapter first**: `python tools/convert.py ch01 A B` → `python tools/verify.py content/ch01.html` →
@@ -74,7 +74,11 @@ Python needs `pymupdf`. Screenshots/e2e need Playwright (any env that has it, e.
    equivalent section/exercise of the new book.
 7. **Publish** (commit without Co-Authored-By unless the user's config wants it):
    - Open license: `gh repo create <user>/<name> --public --source . --push`, then
-     `gh api -X POST repos/<user>/<name>/pages -f build_type=workflow` (uses `assets/pages.yml`).
+     `gh api -X POST repos/<user>/<name>/pages -f build_type=workflow` (uses `assets/pages.yml`), then
+     `gh repo edit <user>/<name> --add-topic study-book` so it appears on the user's **bookshelf**.
+     Bookshelf = `assets/shelf.html` as `index.html` of the repo `<user>.github.io` (create it once; GitHub enables Pages
+     for it automatically). It lists public repos tagged `study-book` that have Pages, reading each book's `book.json`
+     (`build.py` writes title/id/author) and showing the reader's mastery from shared browser storage.
    - Purchased book: `gh repo create <user>/<name> --private --source . --push` (backup only; do NOT enable Pages and
      do not add `pages.yml`). Serve locally, or deploy `site/` to Cloudflare Pages (`npx wrangler pages deploy site
      --project-name <name>`) and protect the project with a Cloudflare Access application **before** sharing the URL
