@@ -1,6 +1,6 @@
 ---
 name: pdf-book-to-study-site
-description: Turn a freely licensed PDF textbook (math or coding) into a public, verbatim, readable HTML study site (GitHub Pages) with exact figures, real math, runnable Python/JavaScript code, themes and text size, Khan-style mastery tracking and automatic exercise checking via the reader's own LLM key plus real code execution. Use when the user wants to "convert this PDF book into a website", "make an interactive/HTML version of a textbook with progress tracking", or "reproduce a book like the Book of Proof site". Requires a license that permits redistribution (e.g. CC BY, CC BY-NC-ND).
+description: Turn a PDF textbook (math or coding) into a verbatim, readable HTML study site with exact figures, real math, runnable Python/JavaScript code, themes and text size, Khan-style mastery tracking and automatic exercise checking via the reader's own LLM key plus real code execution. Openly licensed books can be published on GitHub Pages; books the user has purchased are built as a private personal study copy (local or access-controlled hosting). Use when the user wants to "convert this PDF book into a website", "make an interactive/HTML version of a textbook with progress tracking", or "reproduce a book like the Book of Proof site".
 ---
 
 # PDF book → verbatim study site
@@ -10,10 +10,20 @@ Reference build: Book of Proof (Hammack), repo `majorgilles/book-of-proof`, 380 
 
 ## Non-negotiables
 
-1. **License first.** Read the copyright page (`survey.py` prints it). Only continue if redistribution is allowed.
-   Keep wording verbatim, keep attribution + license link in every page footer (`build.py` `LICENSE`), state
-   "unmodified format conversion, not affiliated with the author". Skip the printed contents and index (navigation
-   apparatus); convert everything else.
+1. **Pick the mode from the copyright page** (`survey.py` prints it). Keep wording verbatim in both modes; skip the
+   printed contents and index (navigation apparatus); convert everything else.
+   - **Open license** that allows redistribution (CC BY, CC BY-NC-ND, …): public GitHub Pages is fine. Footer
+     (`build.py` `LICENSE`) credits the author, links the license, says "unmodified format conversion, not affiliated".
+   - **Purchased / all rights reserved: personal study copy.** Everything stays private:
+     - The **repo must be private** (`content/` and `site/` hold the book's full text).
+     - The **site must be access-controlled**. GitHub Pages from a private repo is *still public* on GitHub
+       Free/Pro, so don't use it. Use one of: local (`python -m http.server -d site`, or open via a local
+       static server); **Cloudflare Pages + Cloudflare Access** (free for small teams, email/Google login);
+       GitHub Enterprise Cloud private Pages; any host behind authentication. Never produce a public URL.
+     - Footer: "Personal study copy of <title>, © <holder>. Not for distribution."
+     - Only **DRM-free** PDFs the user legitimately has. Do not help remove DRM or obtain the book elsewhere.
+     - If the user asks to make a purchased book public or share it, explain it would need the rights holder's
+       permission and don't publish.
 2. **The book's text never passes through a model.** A subagent asked to retype a chapter refused, and was right to:
    prose must flow from the PDF text layer through the deterministic converter. Models only transcribe short
    *formula snippets* (step 6), each machine-checked against the PDF.
@@ -62,21 +72,28 @@ Python needs `pymupdf`. Screenshots/e2e need Playwright (any env that has it, e.
    root): `e2e.py` (progress), `e2e_grade.py` (grading via mock LLM), `e2e_reading.py` (themes/size), and for coding
    books `e2e_code.py`. The e2e scripts target Book of Proof ids (`ch01`, section 1.6, `ex-1.1-1`): point them at an
    equivalent section/exercise of the new book.
-7. **Publish**: `git init`, commit (no Co-Authored-By unless the user's config wants it), `gh repo create <user>/<name>
-   --public --source . --push`, then `gh api -X POST repos/<user>/<name>/pages -f build_type=workflow`.
+7. **Publish** (commit without Co-Authored-By unless the user's config wants it):
+   - Open license: `gh repo create <user>/<name> --public --source . --push`, then
+     `gh api -X POST repos/<user>/<name>/pages -f build_type=workflow` (uses `assets/pages.yml`).
+   - Purchased book: `gh repo create <user>/<name> --private --source . --push` (backup only; do NOT enable Pages and
+     do not add `pages.yml`). Serve locally, or deploy `site/` to Cloudflare Pages (`npx wrangler pages deploy site
+     --project-name <name>`) and protect the project with a Cloudflare Access application **before** sharing the URL
+     with the user; verify an anonymous request is redirected to the login page.
    Auto mode may block publication steps ("Create Public Surface" / "Out-of-Place Publication"): don't work around
    it — give the user the exact `! …` command (no leading space before `!`). Later updates: rebuild, user pushes.
 
 ## Definition of done (every book, same bar as Book of Proof)
 
-- [ ] License allows redistribution; footer credits author + license link; "unmodified format conversion" note.
+- [ ] Mode decided from the copyright page. Open license: attribution + license link footer. Purchased: private
+      repo, access-controlled hosting (anonymous request gets a login page, not the book), "not for distribution" footer.
 - [ ] Every chapter, front matter, conclusion and solutions converted by script (no model-typed prose).
 - [ ] `verify.py`: 0 discrepancies, or only documented figure/diagram word-order residue.
 - [ ] Exercise ids gap-free per block; one chapter hand-counted; solutions have no orphans.
 - [ ] Math crops transcribed + `crops.py check`ed + applied; code blocks (coding books) runnable.
 - [ ] Screenshots of a prose page, an exercise page, a figure-heavy page, mobile width, dark theme.
 - [ ] All applicable e2e tests pass; no console errors.
-- [ ] Repo pushed, Pages enabled, live URL returns the new pages; `BOOK_ID` unique among the user's books.
+- [ ] Repo pushed (public or private per mode); site reachable where intended and nowhere else; `BOOK_ID` unique
+      among the user's books.
 
 ## Reader features (built into assets, nothing to adapt)
 

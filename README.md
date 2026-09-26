@@ -23,4 +23,10 @@ git clone https://github.com/majorgilles/pdf-book-to-study-site ~/.agents/skills
 Then ask your agent to "turn this PDF book into a study site". `SKILL.md` holds the full procedure, the constants to
 adapt per book, the definition of done and the pitfalls; `scripts/` and `assets/` are the tested reference pipeline.
 
-Only use it on books whose license permits redistribution, and keep the author's attribution and license notice.
+## Two modes
+
+- **Openly licensed books** (e.g. Creative Commons): publish on GitHub Pages, keeping the author's attribution and
+  license notice.
+- **Books you bought**: a personal study copy. Keep the repo private and host the site where only you can open it
+  (locally, or Cloudflare Pages behind Cloudflare Access). Note that GitHub Pages built from a private repo is still
+  public on GitHub Free/Pro. Use DRM-free PDFs you legitimately own; the skill does not remove DRM.
