@@ -44,7 +44,6 @@
   try {
     const repos = await fetch(`https://api.github.com/users/${user}/repos?per_page=100&sort=updated`).then(r => r.json());
     const books = repos.filter(r => r.has_pages && (r.topics || []).includes('study-book'));
-    if (!books.length) { box.innerHTML = '<p class="empty">No published books yet.</p>'; return; }
     box.innerHTML = '';
     for (const r of books) {
       const base = `/${r.name}/`;
@@ -58,6 +57,15 @@
       a.querySelector('.author').textContent = meta.author || r.description || '';
       box.append(a);
     }
+    // login-protected books (private copies hosted elsewhere): listed from private-books.json, no progress (other origin)
+    const priv = await fetch('private-books.json').then(x => x.ok ? x.json() : []).catch(() => []);
+    for (const pb of priv) {
+      const a = document.createElement('a'); a.className = 'book'; a.href = pb.url;
+      a.innerHTML = `<div class="title"></div><div class="author"></div><div class="prog">🔒 Private copy · sign-in required</div>`;
+      a.querySelector('.title').textContent = pb.title; a.querySelector('.author').textContent = pb.author || '';
+      box.append(a);
+    }
+    if (!box.children.length) box.innerHTML = '<p class="empty">No published books yet.</p>';
   } catch (e) { box.innerHTML = '<p class="err">Could not load the book list (GitHub API unavailable). Try again later.</p>'; }
 })();
 </script>
