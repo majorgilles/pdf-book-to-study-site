@@ -43,6 +43,13 @@ Python needs `pymupdf`. Screenshots/e2e need Playwright (any env that has it, e.
 
 ## Steps
 
+0. **Ask where to publish — before any work** (AskUserQuestion), after reading the copyright page (`survey.py`):
+   - **Cloudflare Pages + Cloudflare Access (private)** — login-protected, reachable from any device; private GitHub
+     repo as source/backup. Default for purchased or "personal use only" books.
+   - **Local only** — `python -m http.server -d site`; private GitHub repo as backup.
+   - **Public GitHub Pages + bookshelf** — offer only if the license allows redistribution (open license).
+   If the user asks for public hosting of a book whose terms forbid redistribution, say so in one line and offer the
+   two private options; don't publish it publicly. Record the choice; step 7 follows it.
 1. **Survey**: `python tools/survey.py work/Main.pdf` → license, fonts + glyph inventories, body margin per page
    parity, bold heading patterns (exercise/solution structure), outline page ranges.
 2. **Adapt constants** (search for them):
