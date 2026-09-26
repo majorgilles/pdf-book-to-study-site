@@ -86,6 +86,11 @@ Python needs `pymupdf`. Screenshots/e2e need Playwright (any env that has it, e.
      Bookshelf = `assets/shelf.html` as `index.html` of the repo `<user>.github.io` (create it once; GitHub enables Pages
      for it automatically). It lists public repos tagged `study-book` that have Pages, reading each book's `book.json`
      (`build.py` writes title/id/author) and showing the reader's mastery from shared browser storage.
+   - **Cloudflare warning:** wrangler 4.x `pages project create` (Pages is now part of Workers) auto-deploys the
+     *current directory* publicly to `<name>.<subdomain>.workers.dev`. Never run it from the project folder. Safe order:
+     deploy a placeholder `index.html` from an empty temp dir → user enables Cloudflare Access for the workers.dev URL
+     (Worker → Settings → Domains & Routes) → `curl` shows a redirect to `*.cloudflareaccess.com` → only then
+     `wrangler deploy --assets site`. Probe the URL after every Cloudflare command.
    - Purchased book: `gh repo create <user>/<name> --private --source . --push` (backup only; do NOT enable Pages and
      do not add `pages.yml`). Serve locally, or deploy `site/` to Cloudflare Pages (`npx wrangler pages deploy site
      --project-name <name>`) and protect the project with a Cloudflare Access application **before** sharing the URL
